@@ -258,9 +258,9 @@ class ExpenseController extends Controller
         }
 
         $propertyCard = $expense->propertyCard;
-        $canEdit = (int) $expense->user_id === (int) $user->id
-            || ($propertyCard && $propertyCard->isOwner($user))
-            || ($propertyCard && $propertyCard->hasPermission($user, 'can_add_expense'));
+        $canEdit = $propertyCard
+            ? $propertyCard->isOwner($user)
+            : ((int) $expense->user_id === (int) $user->id);
 
         if (! $canEdit) {
             return response()->json([
@@ -361,8 +361,9 @@ class ExpenseController extends Controller
         }
 
         $propertyCard = $expense->propertyCard;
-        $canDelete = (int) $expense->user_id === (int) $user->id
-            || ($propertyCard && $propertyCard->isOwner($user));
+        $canDelete = $propertyCard
+            ? $propertyCard->isOwner($user)
+            : ((int) $expense->user_id === (int) $user->id);
 
         if (! $canDelete) {
             return response()->json([

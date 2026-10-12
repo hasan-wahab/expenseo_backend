@@ -80,6 +80,7 @@ class PropertyCardController extends Controller
             'property_name' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'max:100'],
             'property_location' => ['required', 'string', 'max:255'],
+            'currency' => ['sometimes', 'nullable', 'string', 'max:10'],
             'target_budget' => ['required', 'numeric', 'min:0'],
             'user_email' => ['required', 'string', 'email', 'max:255'],
         ]);
@@ -110,6 +111,8 @@ class PropertyCardController extends Controller
             'property image'
         );
 
+        $currency = strtoupper(trim($validated['currency'] ?? 'PKR')) ?: 'PKR';
+
         try {
             $propertyCard = DB::transaction(fn () => PropertyCard::create([
                 'card_id' => ! empty($validated['card_id'])
@@ -121,6 +124,7 @@ class PropertyCardController extends Controller
                 'property_name' => $validated['property_name'],
                 'category' => $validated['category'],
                 'property_location' => $validated['property_location'],
+                'currency' => $currency,
                 'target_budget' => $validated['target_budget'],
                 'total_expense' => 0,
                 'monthly_expense' => 0,
@@ -180,6 +184,7 @@ class PropertyCardController extends Controller
             'property_name',
             'category',
             'property_location',
+            'currency',
             'target_budget',
             'property_image',
         ];
@@ -194,6 +199,7 @@ class PropertyCardController extends Controller
             'property_name' => ['sometimes', 'required', 'string', 'max:255'],
             'category' => ['sometimes', 'required', 'string', 'max:100'],
             'property_location' => ['sometimes', 'required', 'string', 'max:255'],
+            'currency' => ['sometimes', 'required', 'string', 'max:10'],
             'target_budget' => ['sometimes', 'required', 'numeric', 'min:0'],
             'property_image' => ['sometimes', 'nullable', 'string'],
             'user_email' => ['sometimes', 'string', 'email', 'max:255'],
@@ -207,6 +213,10 @@ class PropertyCardController extends Controller
 
         $previousImagePath = $propertyCard->property_image;
         $updates = array_intersect_key($validated, array_flip($updatableFields));
+
+        if (array_key_exists('currency', $updates)) {
+            $updates['currency'] = strtoupper(trim((string) $updates['currency'])) ?: 'PKR';
+        }
 
         if (array_key_exists('property_image', $validated)) {
             $updates['property_image'] = $this->imageStorage->store(
@@ -306,6 +316,7 @@ class PropertyCardController extends Controller
             'property_name' => $propertyCard->property_name,
             'category' => $propertyCard->category,
             'property_location' => $propertyCard->property_location,
+            'currency' => $propertyCard->currency ?? 'PKR',
             'target_budget' => (float) $propertyCard->target_budget,
             'total_expense' => (float) $propertyCard->total_expense,
             'monthly_expense' => (float) $propertyCard->monthly_expense,
