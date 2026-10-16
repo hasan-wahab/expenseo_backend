@@ -10,6 +10,11 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
+        then: function () {
+            \Illuminate\Support\Facades\Route::middleware('api')
+                ->prefix('api/game')
+                ->group(base_path('routes/game.php'));
+        },
         health: '/up',
     )
     ->withBroadcasting(

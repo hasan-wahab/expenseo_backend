@@ -13,3 +13,15 @@ Broadcast::channel('property.{cardId}', function (User $user, string $cardId): b
 
     return $property?->isAccessibleBy($user) ?? false;
 }, ['guards' => ['sanctum']]);
+
+// --- Game Multiplayer Channels ---
+Broadcast::channel('game.room.{code}', function (User $user, string $code): bool {
+    $room = \App\Game\Models\GameRoom::where('code', $code)->first();
+
+    return $room?->hasPlayer($user->id, $user->name) ?? true;
+}, ['guards' => ['sanctum']]);
+
+Broadcast::channel('game.user.{userId}', function (User $user, int|string $userId): bool {
+    return (int) $user->id === (int) $userId;
+}, ['guards' => ['sanctum']]);
+
